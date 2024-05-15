@@ -1,12 +1,3 @@
-const WS_TYPE = Object.freeze({
-  HEART_BEAT: 'heart_beat',
-});
-
-const heartBeatSendData = {
-  type: WS_TYPE.HEART_BEAT,
-  data: 'hello server!'
-};
-
 class Socket {
   send(data) {
     this.socket.send(data);
@@ -21,6 +12,10 @@ class Socket {
     this.heartbeatTimer = null;
     this.socket = null;
     this.url = url;
+    this.heartBeatSendData = {
+      type: 'heart_beat',
+      data: 'connecting!'
+    };
 
     this.onopen = () => { };
     this.onclose = () => { };
@@ -41,7 +36,7 @@ class Socket {
       let data = JSON.parse(event.data);
 
       switch (data.type) {
-        case WS_TYPE.HEART_BEAT:
+        case 'heart_beat':
           this.onreconnect(event);
           break;
         default:
@@ -75,7 +70,7 @@ class Socket {
     this.distory();
 
     this.heartbeatTimer = setInterval(() => {
-      this.socket.send(JSON.stringify(heartBeatSendData));
+      this.socket.send(JSON.stringify(this.heartBeatSendData));
     }, 4000);
   }
 

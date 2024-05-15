@@ -13,6 +13,7 @@ server.on('connection', (ws, req) => {
         break;
       default:
         ws.send(JSON.stringify(data));
+        ws.close();
         break;
     }
   });
