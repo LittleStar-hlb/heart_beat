@@ -5,10 +5,7 @@ const WS_URL = 'ws://localhost:8000';
 const socket = new Socket(WS_URL);
 
 sendBtn.addEventListener('click', () => {
-  socket.send(JSON.stringify({
-    type: 'message',
-    data: 'hello server!'
-  }));
+  socket.send('hello server');
 });
 
 closeBtn.addEventListener('click', () => {
