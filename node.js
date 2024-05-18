@@ -13,11 +13,18 @@ server.on('connection', (ws, req) => {
           break;
         default:
           ws.send(JSON.stringify(data));
-          ws.close();
           break;
       }
     } catch (error) {
-      ws.send(dataStr);
+      const data = dataStr.toString();
+      switch (data) {
+        case 'close':
+          ws.close();
+          break;
+        default:
+          ws.send(dataStr);
+          break;
+      }
     }
   });
 
