@@ -5,16 +5,19 @@ const server = new WebSocket.Server({ port: 8000 });
 // 监听连接事件
 server.on('connection', (ws, req) => {
   ws.on('message', (dataStr) => {
-    const data = JSON.parse(dataStr);
-
-    switch (data.type) {
-      case 'heart_beat':
-        ws.send(JSON.stringify(data));
-        break;
-      default:
-        ws.send(JSON.stringify(data));
-        ws.close();
-        break;
+    try {
+      const data = JSON.parse(dataStr);
+      switch (data.type) {
+        case 'heart_beat':
+          ws.send(JSON.stringify(data));
+          break;
+        default:
+          ws.send(JSON.stringify(data));
+          ws.close();
+          break;
+      }
+    } catch (error) {
+      ws.send(dataStr);
     }
   });
 

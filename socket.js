@@ -5,30 +5,36 @@ class Socket {
   #socket;
   #url;
   #heartBeatSendData;
+  #ht;
+  #rt;
 
-  send(data) {
-    if (this.#socketStatus) {
-      this.#socket.send(data);
+  static #receiveInit(url, ht, rt) {
+    if (!url) {
+      throw new Error('url is required');
+    } else if (typeof url !== 'string') {
+      throw new Error('url must be a string');
+    } else if (typeof ht !== 'number') {
+      throw new Error('ht must be a number');
+    } else if (typeof rt !== 'number') {
+      throw new Error('rt must be a number');
+    } else if (ht <= 0) {
+      throw new Error('ht must be greater than 0');
+    } else if (rt <= 0) {
+      throw new Error('rt must be greater than 0');
     } else {
-      throw new Error('socket is not connected');
+      return true;
     }
   }
 
-  close() {
-    if (this.#socketStatus) {
-      this.#socket.close();
-      this.#isReconnect = false;
-    } else {
-      throw new Error('socket is not connected');
-    }
-  }
-
-  constructor(url) {
+  constructor(url, ht = 4000, rt = 3000) {
+    Socket.#receiveInit(url, ht, rt);
     this.#socketStatus = false;
     this.#heartbeatTimer = null;
     this.#isReconnect = true;
     this.#socket = null;
     this.#url = url;
+    this.#ht = ht;
+    this.#rt = rt;
     this.#heartBeatSendData = Object.freeze({
       type: 'heart_beat',
       data: 'ping'
@@ -44,21 +50,41 @@ class Socket {
     this.#initEvent();
   }
 
+  send(data) {
+    if (this.#socketStatus) {
+      this.#socket.send(data);
+    } else {
+      throw new Error('Socket is not connected');
+    }
+  }
+
+  close() {
+    if (this.#socketStatus) {
+      this.#socket.close();
+      this.#isReconnect = false;
+    } else {
+      throw new Error('Socket is not connected');
+    }
+  }
+
   #createSocket() {
     this.#socket = new WebSocket(this.#url);
   }
 
   #initEvent() {
     this.#socket.onmessage = (event) => {
-      let data = JSON.parse(event.data);
-
-      switch (data.type) {
-        case 'heart_beat':
-          this.onreconnect(event);
-          break;
-        default:
-          this.onmessage(event);
-          break;
+      try {
+        const data = JSON.parse(event.data);
+        switch (data.type) {
+          case 'heart_beat':
+            this.onreconnect(event);
+            break;
+          default:
+            this.onmessage(event);
+            break;
+        }
+      } catch (error) {
+        this.onmessage(event);
       }
     };
 
@@ -72,7 +98,7 @@ class Socket {
       this.onclose(event);
       this.#socketStatus = false;
 
-      if (this.#isReconnect) {
+      if (this.#isReconnect || !event.wasClean) {
         this.#reconnect();
       } else {
         this.#destroy();
@@ -91,7 +117,7 @@ class Socket {
 
     this.#heartbeatTimer = setInterval(() => {
       this.#socket.send(JSON.stringify(this.#heartBeatSendData));
-    }, 4000);
+    }, this.#ht);
   }
 
   #reconnect() {
@@ -100,7 +126,7 @@ class Socket {
     setTimeout(() => {
       this.#createSocket();
       this.#initEvent();
-    }, 3000);
+    }, this.#rt);
   }
 
   #destroy() {
@@ -108,5 +134,3 @@ class Socket {
     this.#heartbeatTimer = null;
   }
 }
-
-
