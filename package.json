@@ -2,9 +2,7 @@
   "name": "websecket",
   "version": "1.0.0",
   "main": "node.js",
-  "scripts": {
-    "dev": "node.js"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",

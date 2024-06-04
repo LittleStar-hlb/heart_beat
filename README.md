@@ -4,8 +4,7 @@
 
 ```javascript
 /**
- * 创建一个新的 Socket 实例。
- *
+ * @constructor
  * @param {string} url - WebSocket 服务器 URL。
  * @param {number} ht - 心跳间隔时间，单位是毫秒。
  * @param {number} rt - 重连延迟时间，单位是毫秒。
