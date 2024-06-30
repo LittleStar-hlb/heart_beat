@@ -1,6 +1,6 @@
-# websocket 心跳机制
+# webSocket 心跳机制
 
-## 1. 初始化
+## 1. 开始
 
 ```javascript
 /**
